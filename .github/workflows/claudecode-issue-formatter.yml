@@ -50,8 +50,21 @@ jobs:
                  - **Suggested labels**: the labels you applied and why
                - A closing note thanking the contributor
 
+            **Formatting requirement**: the comment body MUST be valid GitHub Flavored Markdown
+            that GitHub renders correctly. Use:
+               - `##` / `###` headings for sections (e.g. `## Formatted Report`)
+               - `**bold**` for field labels
+               - `-` bullet lists, and `- [ ]` task-list checkboxes where a checklist helps
+               - fenced code blocks with a language tag (```js, ```bash) for any code or commands
+               - Markdown tables only when they genuinely improve readability
+            Do NOT use raw HTML or any syntax GitHub does not support. Keep real line breaks
+            between blocks so the Markdown does not collapse into a single paragraph.
+
             Use the `gh` CLI to apply labels and post the comment. Example commands:
               gh issue edit ${{ github.event.issue.number }} --add-label "bug" --repo ${{ github.repository }}
-              gh issue comment ${{ github.event.issue.number }} --body "..." --repo ${{ github.repository }}
+              gh issue comment ${{ github.event.issue.number }} --body-file report.md --repo ${{ github.repository }}
+            Prefer `--body-file` (write the Markdown to a file first) over `--body "..."` so
+            newlines and Markdown structure are preserved; if you use `--body`, pass a real
+            multi-line string, not one with literal `\n`.
 
             Be concise, helpful, and friendly. Do not over-engineer the response.
