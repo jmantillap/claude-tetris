@@ -4,15 +4,52 @@
   padding: 0;
 }
 
+:root {
+  --bg: #0f0f17;
+  --fg: #e0e0e0;
+  --title-color: #7aa2f7;
+  --board-bg: #1a1a25;
+  --board-border: #2a2a3a;
+  --grid-line: #22222e;
+  --panel-label: #555570;
+  --panel-value: #7aa2f7;
+  --kbd-bg: #22223a;
+  --kbd-border: #3a3a5a;
+  --kbd-color: #aaa;
+  --controls-color: #888;
+  --overlay-bg: rgba(10, 10, 20, 0.75);
+  --switch-bg: #2a2a3a;
+  --switch-knob: #e0e0e0;
+}
+
+body.light {
+  --bg: #f2f2f7;
+  --fg: #1c1c28;
+  --title-color: #3f5fbf;
+  --board-bg: #ffffff;
+  --board-border: #cfcfe0;
+  --grid-line: #e2e2ee;
+  --panel-label: #7a7a94;
+  --panel-value: #3f5fbf;
+  --kbd-bg: #e6e6f2;
+  --kbd-border: #cfcfe0;
+  --kbd-color: #444;
+  --controls-color: #555;
+  --overlay-bg: rgba(255, 255, 255, 0.75);
+  --switch-bg: #cfcfe0;
+  --switch-knob: #ffffff;
+}
+
 body {
-  background: #0f0f17;
-  color: #e0e0e0;
+  background: var(--bg);
+  color: var(--fg);
   font-family: system-ui, -apple-system, sans-serif;
   display: flex;
   align-items: center;
   justify-content: center;
   min-height: 100vh;
   user-select: none;
+  transition: background 0.2s ease, color 0.2s ease;
 }
 
 .wrapper {
@@ -24,8 +61,62 @@ body {
   font-size: 32px;
   font-weight: 800;
   letter-spacing: 8px;
-  color: #7aa2f7;
+  color: var(--title-color);
   margin-bottom: 16px;
+}
+
+/* ---- Toggle Light/Dark ---- */
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.theme-toggle-label {
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--panel-label);
+  font-weight: 600;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 22px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  inset: 0;
+  cursor: pointer;
+  background: var(--switch-bg);
+  border-radius: 22px;
+  transition: background 0.2s ease;
+}
+
+.slider::before {
+  content: '';
+  position: absolute;
+  height: 16px;
+  width: 16px;
+  left: 3px;
+  bottom: 3px;
+  background: var(--switch-knob);
+  border-radius: 50%;
+  transition: transform 0.2s ease;
+}
+
+.switch input:checked + .slider::before {
+  transform: translateX(18px);
 }
 
 .game-container {
@@ -36,10 +127,11 @@ body {
 
 #board {
   display: block;
-  border: 1px solid #2a2a3a;
-  background: #1a1a25;
+  border: 1px solid var(--board-border);
+  background: var(--board-bg);
   border-radius: 4px;
   box-shadow: 0 0 40px rgba(0, 0, 0, 0.6);
+  transition: background 0.2s ease, border-color 0.2s ease;
 }
 
 /* ---- Panel lateral ---- */
@@ -60,7 +152,7 @@ body {
 .label {
   font-size: 10px;
   letter-spacing: 2px;
-  color: #555570;
+  color: var(--panel-label);
   font-weight: 600;
 }
 
@@ -68,15 +160,16 @@ body {
   font-family: 'Courier New', Courier, monospace;
   font-size: 26px;
   font-weight: 700;
-  color: #7aa2f7;
+  color: var(--panel-value);
   letter-spacing: 1px;
 }
 
 #next-canvas {
   display: block;
-  border: 1px solid #2a2a3a;
-  background: #1a1a25;
+  border: 1px solid var(--board-border);
+  background: var(--board-bg);
   border-radius: 4px;
+  transition: background 0.2s ease, border-color 0.2s ease;
 }
 
 /* ---- Controles ---- */
@@ -89,20 +182,20 @@ body {
 
 .controls li {
   font-size: 12px;
-  color: #888;
+  color: var(--controls-color);
   display: flex;
   align-items: center;
   gap: 4px;
 }
 
 kbd {
-  background: #22223a;
-  border: 1px solid #3a3a5a;
+  background: var(--kbd-bg);
+  border: 1px solid var(--kbd-border);
   border-radius: 3px;
   padding: 1px 6px;
   font-size: 11px;
   font-family: inherit;
-  color: #aaa;
+  color: var(--kbd-color);
 }
 
 /* ---- Overlay ---- */
@@ -112,7 +205,7 @@ kbd {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(10, 10, 20, 0.75);
+  background: var(--overlay-bg);
   backdrop-filter: blur(4px);
   border-radius: 4px;
 }
@@ -139,7 +232,7 @@ kbd {
 #overlay-score {
   font-family: 'Courier New', Courier, monospace;
   font-size: 14px;
-  color: #7aa2f7;
+  color: var(--panel-value);
 }
 
 #restart-btn {
