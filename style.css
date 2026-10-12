@@ -252,3 +252,44 @@ kbd {
 #restart-btn:hover {
   background: #9bbdff;
 }
+
+/* ---- Records ---- */
+#records-list {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 13px;
+  color: var(--controls-color);
+  text-align: left;
+  min-width: 200px;
+  padding-left: 24px;
+}
+
+#records-list li.highlight {
+  color: var(--title-color);
+  font-weight: 700;
+}
+
+#records-stats {
+  font-size: 11px;
+  color: var(--panel-label);
+}
+
+#name-input {
+  background: var(--kbd-bg);
+  border: 1px solid var(--kbd-border);
+  color: var(--fg);
+  border-radius: 4px;
+  padding: 6px 8px;
+  width: 130px;
+  user-select: text;
+}
+
+#name-form button,
+#reset-records-btn {
+  background: var(--kbd-bg);
+  border: 1px solid var(--kbd-border);
+  color: var(--kbd-color);
+  border-radius: 4px;
+  padding: 6px 10px;
+  font-size: 12px;
+  cursor: pointer;
+}

@@ -56,11 +56,44 @@ const overlayScore = document.getElementById('overlay-score');
 const restartBtn = document.getElementById('restart-btn');
 const themeToggle = document.getElementById('theme-toggle');
 
+const nameForm = document.getElementById('name-form');
+const nameInput = document.getElementById('name-input');
+const recordsList = document.getElementById('records-list');
+const recordsStats = document.getElementById('records-stats');
+const resetRecordsBtn = document.getElementById('reset-records-btn');
+
 const THEME_KEY = 'tetris-theme';
+const RECORDS_KEY = 'tetris-records';
+const MAX_RECORDS = 5;
 const GRID_COLORS = { dark: '#22222e', light: '#e2e2ee' };
 
-let board, current, next, score, lines, level, paused, gameOver, lastTime, dropAccum, dropInterval, animId, rewardPending;
+let board, current, next, score, lines, level, paused, gameOver, lastTime, dropAccum, dropInterval, animId, rewardPending, combo, maxCombo;
 let gridColor = GRID_COLORS.dark;
+
+// combo = locks consecutivos que limpian línea
+function loadRecords() {
+  const empty = { top: [], bestCombo: 0, maxLines: 0 };
+  try {
+    return { ...empty, ...JSON.parse(localStorage.getItem(RECORDS_KEY)) };
+  } catch {
+    return empty;
+  }
+}
+
+function saveRecords(rec) {
+  localStorage.setItem(RECORDS_KEY, JSON.stringify(rec));
+}
+
+function renderRecords(highlight = -1) {
+  const { top, bestCombo, maxLines } = loadRecords();
+  recordsList.replaceChildren(...top.map((r, i) => {
+    const li = document.createElement('li');
+    li.textContent = `${r.name} — ${r.score.toLocaleString()}`;
+    li.classList.toggle('highlight', i === highlight);
+    return li;
+  }));
+  recordsStats.textContent = `Mejor combo: ${bestCombo} · Líneas máx: ${maxLines}`;
+}
 
 function applyTheme(theme) {
   const isLight = theme === 'light';
@@ -139,6 +172,8 @@ function clearLines() {
       r++;
     }
   }
+  combo = cleared ? combo + 1 : 0;
+  maxCombo = Math.max(maxCombo, combo);
   if (cleared) {
     lines += cleared;
     if (cleared === 4) rewardPending = true;
@@ -267,6 +302,26 @@ function endGame() {
   draw();
   overlayTitle.textContent = 'GAME OVER';
   overlayScore.textContent = `Puntuación: ${score.toLocaleString()}`;
+
+  const rec = loadRecords();
+  rec.bestCombo = Math.max(rec.bestCombo, maxCombo);
+  rec.maxLines = Math.max(rec.maxLines, lines);
+  saveRecords(rec);
+  const last = rec.top[MAX_RECORDS - 1];
+  nameForm.hidden = !(score > 0 && (!last || score > last.score));
+  renderRecords();
+  overlay.classList.remove('hidden');
+  if (!nameForm.hidden) nameInput.focus();
+}
+
+function showStart() {
+  init();
+  cancelAnimationFrame(animId);
+  gameOver = true; // bloquea teclas hasta pulsar Jugar
+  draw();
+  overlayTitle.textContent = 'TETRIS';
+  overlayScore.textContent = '';
+  restartBtn.textContent = 'Jugar';
   overlay.classList.remove('hidden');
 }
 
@@ -312,10 +367,14 @@ function init() {
   dropInterval = 1000;
   dropAccum = 0;
   rewardPending = false;
+  combo = maxCombo = 0;
   lastTime = performance.now();
   next = randomPiece();
   spawn();
   updateHUD();
+  nameForm.hidden = true;
+  restartBtn.textContent = 'Reiniciar';
+  renderRecords();
   overlay.classList.add('hidden');
   cancelAnimationFrame(animId);
   animId = requestAnimationFrame(loop);
@@ -347,9 +406,27 @@ document.addEventListener('keydown', e => {
 });
 
 restartBtn.addEventListener('click', init);
+nameForm.addEventListener('submit', e => {
+  e.preventDefault();
+  const rec = loadRecords();
+  const entry = { name: nameInput.value.trim() || 'ANÓNIMO', score };
+  rec.top.push(entry);
+  rec.top.sort((a, b) => b.score - a.score);
+  const idx = rec.top.indexOf(entry);
+  rec.top = rec.top.slice(0, MAX_RECORDS);
+  saveRecords(rec);
+  nameForm.hidden = true;
+  nameInput.value = '';
+  renderRecords(idx);
+});
+resetRecordsBtn.addEventListener('click', () => {
+  if (!confirm('¿Borrar todos los records?')) return;
+  localStorage.removeItem(RECORDS_KEY);
+  renderRecords();
+});
 themeToggle.addEventListener('change', () => {
   applyTheme(themeToggle.checked ? 'light' : 'dark');
 });
 
 initTheme();
-init();
+showStart();
