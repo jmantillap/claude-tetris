@@ -119,6 +119,24 @@ body {
   transform: translateX(18px);
 }
 
+.skin-select {
+  margin-left: 12px;
+  background: var(--kbd-bg);
+  color: var(--kbd-color);
+  border: 1px solid var(--kbd-border);
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 11px;
+}
+
+/* Neon: tablero siempre negro, también en tema light */
+body.skin-neon #board,
+body.skin-neon #next-canvas {
+  background: #000;
+  border-color: #00f0ff;
+  box-shadow: 0 0 16px rgba(0, 240, 255, 0.4);
+}
+
 .game-container {
   display: flex;
   gap: 20px;

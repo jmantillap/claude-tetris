@@ -31,6 +31,7 @@ Tres archivos que cooperan: `index.html` (DOM + dos `<canvas>`), `style.css` (da
 - **`lockPiece`** = `merge` → `clearLines` → `spawn`. Si `spawn` genera pieza que ya colisiona → `endGame()`.
 - **Overlay único** (`#overlay`) reutilizado para PAUSA y GAME OVER; se cambia texto y se togglea clase `.hidden`.
 - **Nivel/velocidad**: `level = floor(lines/10)+1`; `dropInterval = max(100, 1000 - (level-1)*90)`.
+- **Skins**: `SKINS` {retro, neon, pastel, pixel}, cada una con `colors` (13, índice 0 null), `grid` opcional y `draw(c, px, py, s, color)`. `drawBlock` delega en la skin activa; `COLORS` es `let` y apunta a su paleta. `applySkin`/`initSkin` (clave `tetris-skin`, `<select id="skin-select">`), clase `body.skin-<id>` y repintan en vivo (también en pausa). Neon fuerza tablero negro vía CSS.
 
 ## Al modificar dimensiones
 
