@@ -29,8 +29,8 @@ Tres archivos que cooperan: `index.html` (DOM + dos `<canvas>`), `style.css` (da
 - **`collide(shape, x, y)`**: única función de colisión; se usa también para ghost piece, hard/soft drop y detección de game over en `spawn`.
 - **Game loop**: `loop(ts)` con `requestAnimationFrame`, acumula `dt` en `dropAccum` y baja una fila cuando supera `dropInterval`. `draw()` repinta todo cada frame.
 - **`lockPiece`** = `merge` → `clearLines` → `spawn`. Si `spawn` genera pieza que ya colisiona → `endGame()`.
-- **Overlay único** (`#overlay`) reutilizado para PAUSA y GAME OVER; se cambia texto y se togglea clase `.hidden`.
-- **Nivel/velocidad**: `level = floor(lines/10)+1`; `dropInterval = max(100, 1000 - (level-1)*90)`.
+- **Overlays**: `#overlay` solo para GAME OVER; `#pause-menu` (P / Escape → `togglePause`) tiene Reanudar, Reiniciar, Ver controles (plegable) y selector Nivel inicial (`startLevel`). Con `paused` el keydown de juego se ignora; al reanudar se hace `blur()` y se ignora `e.repeat` (`ignoreRepeat`) hasta un keydown nuevo.
+- **Nivel/velocidad** (`applyLevel`): `level = startLevel + floor(lines/10)`; `dropInterval = max(100, 1000 - (level-1)*90)`.
 
 ## Al modificar dimensiones
 
