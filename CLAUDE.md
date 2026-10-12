@@ -29,8 +29,10 @@ Tres archivos que cooperan: `index.html` (DOM + dos `<canvas>`), `style.css` (da
 - **`collide(shape, x, y)`**: única función de colisión; se usa también para ghost piece, hard/soft drop y detección de game over en `spawn`.
 - **Game loop**: `loop(ts)` con `requestAnimationFrame`, acumula `dt` en `dropAccum` y baja una fila cuando supera `dropInterval`. `draw()` repinta todo cada frame.
 - **`lockPiece`** = `merge` → `clearLines` → `spawn`. Si `spawn` genera pieza que ya colisiona → `endGame()`.
-- **Overlay único** (`#overlay`) reutilizado para PAUSA y GAME OVER; se cambia texto y se togglea clase `.hidden`.
-- **Nivel/velocidad**: `level = floor(lines/10)+1`; `dropInterval = max(100, 1000 - (level-1)*90)`.
+- **Overlays**: `#overlay` solo para GAME OVER; `#pause-menu` (P / Escape → `togglePause`) tiene Reanudar, Reiniciar, Ver controles (plegable) y selector Nivel inicial (`startLevel`). Con `paused` el keydown de juego se ignora; al reanudar se hace `blur()` y se ignora `e.repeat` (`ignoreRepeat`) hasta un keydown nuevo.
+- **Nivel/velocidad** (`applyLevel`): `level = startLevel + floor(lines/10)`; `dropInterval = max(100, 1000 - (level-1)*90)`.
+- **Records**: `RECORDS_KEY='tetris-records'` en localStorage = `{top:[{name,score,lines,combo}] (5), bestCombo, maxLines}`; lectura con try/catch (corrupto → vacío). `combo`/`maxCombo` se actualizan en `clearLines`. Pantalla de inicio `#start-screen` (inputs bloqueados por `started` hasta Jugar; `init()` solo se llama desde Jugar/Reiniciar). En game over, `entryOpen` muestra input de nombre (`#record-entry`) y la fila resaltada; nombres siempre con `textContent`.
+- **Skins**: `SKINS` {retro, neon, pastel, pixel}, cada una con `colors` (13, índice 0 null), `grid` opcional y `draw(c, px, py, s, color)`. `drawBlock` delega en la skin activa; `COLORS` es `let` y apunta a su paleta. `applySkin`/`initSkin` (clave `tetris-skin`, `<select id="skin-select">`), clase `body.skin-<id>` y repintan en vivo (también en pausa). Neon fuerza tablero negro vía CSS.
 
 ## Al modificar dimensiones
 

@@ -17,6 +17,12 @@
         <span class="slider"></span>
       </label>
       <span class="theme-toggle-label">LIGHT</span>
+      <select id="skin-select" class="skin-select" aria-label="Skin">
+        <option value="retro">Retro</option>
+        <option value="neon">Neon</option>
+        <option value="pastel">Pastel</option>
+        <option value="pixel">Pixel art</option>
+      </select>
     </div>
 
     <div class="game-container">
@@ -48,7 +54,7 @@
             <li><kbd>↑</kbd> rotar</li>
             <li><kbd>↓</kbd> bajar</li>
             <li><kbd>Space</kbd> caída</li>
-            <li><kbd>P</kbd> pausa</li>
+            <li><kbd>P</kbd> / <kbd>Esc</kbd> pausa</li>
           </ul>
         </div>
       </aside>
@@ -58,7 +64,57 @@
       <div class="overlay-box">
         <p id="overlay-title">GAME OVER</p>
         <p id="overlay-score"></p>
+        <div id="records-box" class="records-box" hidden>
+          <div id="record-entry" class="record-entry" hidden>
+            <span>¡Nuevo record! Tu nombre:</span>
+            <input type="text" id="name-input" maxlength="12" autocomplete="off" />
+            <button id="save-record-btn">Guardar</button>
+          </div>
+          <table class="records-table">
+            <thead><tr><th>#</th><th>Nombre</th><th>Puntos</th><th>Líneas</th><th>Combo</th></tr></thead>
+            <tbody id="over-records"></tbody>
+          </table>
+          <p id="over-stats" class="records-stats"></p>
+          <button class="reset-records-btn">Borrar records</button>
+        </div>
         <button id="restart-btn">Reiniciar</button>
+      </div>
+    </div>
+
+    <div id="pause-menu" class="overlay hidden" role="dialog" aria-modal="true" aria-label="Menú de pausa">
+      <div class="overlay-box pause-box">
+        <p class="pause-title">PAUSA</p>
+        <button id="resume-btn" class="menu-btn">Reanudar</button>
+        <button id="pause-restart-btn" class="menu-btn">Reiniciar</button>
+        <button id="controls-btn" class="menu-btn" aria-expanded="false">Ver controles</button>
+        <ul id="pause-controls" class="pause-controls hidden">
+          <li><kbd>←</kbd><kbd>→</kbd> mover</li>
+          <li><kbd>↑</kbd> / <kbd>X</kbd> rotar</li>
+          <li><kbd>↓</kbd> bajar</li>
+          <li><kbd>Space</kbd> caída</li>
+          <li><kbd>P</kbd> / <kbd>Esc</kbd> pausa</li>
+        </ul>
+        <label class="start-level">Nivel inicial
+          <select id="start-level">
+            <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+            <option value="4">4</option><option value="5">5</option><option value="6">6</option>
+            <option value="7">7</option><option value="8">8</option><option value="9">9</option>
+            <option value="10">10</option>
+          </select>
+        </label>
+      </div>
+    </div>
+
+    <div id="start-screen" class="overlay">
+      <div class="overlay-box">
+        <p class="start-title">RECORDS</p>
+        <table class="records-table">
+          <thead><tr><th>#</th><th>Nombre</th><th>Puntos</th><th>Líneas</th><th>Combo</th></tr></thead>
+          <tbody id="start-records"></tbody>
+        </table>
+        <p id="start-stats" class="records-stats"></p>
+        <button id="play-btn">Jugar</button>
+        <button class="reset-records-btn">Borrar records</button>
       </div>
     </div>
   </div>
