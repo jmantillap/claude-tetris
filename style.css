@@ -119,6 +119,30 @@ body {
   transform: translateX(18px);
 }
 
+/* ---- Selector de skin ---- */
+.skin-select {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+#skin-select {
+  background: var(--kbd-bg);
+  color: var(--fg);
+  border: 1px solid var(--kbd-border);
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 12px;
+}
+
+/* Neon fuerza fondo negro sin importar light/dark */
+body.skin-neon {
+  --board-bg: #000;
+  --board-border: #1f1f2e;
+}
+
 .game-container {
   display: flex;
   gap: 20px;
