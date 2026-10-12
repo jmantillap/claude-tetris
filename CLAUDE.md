@@ -31,6 +31,7 @@ Tres archivos que cooperan: `index.html` (DOM + dos `<canvas>`), `style.css` (da
 - **`lockPiece`** = `merge` → `clearLines` → `spawn`. Si `spawn` genera pieza que ya colisiona → `endGame()`.
 - **Overlay único** (`#overlay`) reutilizado para PAUSA y GAME OVER; se cambia texto y se togglea clase `.hidden`.
 - **Nivel/velocidad**: `level = floor(lines/10)+1`; `dropInterval = max(100, 1000 - (level-1)*90)`.
+- **Records**: `RECORDS_KEY='tetris-records'` en localStorage = `{top:[{name,score,lines,combo}] (5), bestCombo, maxLines}`; lectura con try/catch (corrupto → vacío). `combo`/`maxCombo` se actualizan en `clearLines`. Pantalla de inicio `#start-screen` (inputs bloqueados por `started` hasta Jugar; `init()` solo se llama desde Jugar/Reiniciar). En game over, `entryOpen` muestra input de nombre (`#record-entry`) y la fila resaltada; nombres siempre con `textContent`.
 
 ## Al modificar dimensiones
 
