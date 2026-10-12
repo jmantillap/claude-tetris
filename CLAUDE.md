@@ -30,7 +30,8 @@ Tres archivos que cooperan: `index.html` (DOM + dos `<canvas>`), `style.css` (da
 - **Game loop**: `loop(ts)` con `requestAnimationFrame`, acumula `dt` en `dropAccum` y baja una fila cuando supera `dropInterval`. `draw()` repinta todo cada frame.
 - **`lockPiece`** = `merge` → `clearLines` → `spawn`. Si `spawn` genera pieza que ya colisiona → `endGame()`.
 - **Overlay único** (`#overlay`) reutilizado para PAUSA y GAME OVER; se cambia texto y se togglea clase `.hidden`.
-- **Nivel/velocidad**: `level = floor(lines/10)+1`; `dropInterval = max(100, 1000 - (level-1)*90)`.
+- **Nivel/velocidad**: `level = startLevel + floor(lines/10)` (`startLevel` sale del `<select id="start-level">` del menú, leído en `init()`); `setLevel` fija `dropInterval = max(100, 1000 - (level-1)*90)`.
+- **Menú de pausa**: P/Esc → `togglePause`; el overlay muestra Reanudar/Reiniciar/Ver controles/Nivel inicial. Clase `.over` en overlay (game over) oculta los `.pause-only`. Con `paused` el `keydown` no llega al juego.
 
 ## Al modificar dimensiones
 
