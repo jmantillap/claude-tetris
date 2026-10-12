@@ -56,11 +56,109 @@ const overlayScore = document.getElementById('overlay-score');
 const restartBtn = document.getElementById('restart-btn');
 const themeToggle = document.getElementById('theme-toggle');
 
+const startScreen = document.getElementById('start-screen');
+const playBtn = document.getElementById('play-btn');
+const recordsBox = document.getElementById('records-box');
+const recordEntry = document.getElementById('record-entry');
+const nameInput = document.getElementById('name-input');
+const saveRecordBtn = document.getElementById('save-record-btn');
+const startBody = document.getElementById('start-records');
+const overBody = document.getElementById('over-records');
+const startStats = document.getElementById('start-stats');
+const overStats = document.getElementById('over-stats');
+
 const THEME_KEY = 'tetris-theme';
+const RECORDS_KEY = 'tetris-records';
+const MAX_RECORDS = 5;
+const NAME_MAX = 12;
 const GRID_COLORS = { dark: '#22222e', light: '#e2e2ee' };
 
 let board, current, next, score, lines, level, paused, gameOver, lastTime, dropAccum, dropInterval, animId, rewardPending;
+let combo, maxCombo;
+let started = false;
+let records = { top: [], bestCombo: 0, maxLines: 0 };
+let entryOpen = false; // game over con puntuación que entra al top, pendiente de guardar nombre
+let savedRank = -1;    // fila a resaltar tras guardar
 let gridColor = GRID_COLORS.dark;
+
+// ---- Records (localStorage) ----
+function loadRecords() {
+  try {
+    const d = JSON.parse(localStorage.getItem(RECORDS_KEY));
+    const top = (Array.isArray(d.top) ? d.top : [])
+      .filter(r => r && Number.isFinite(r.score))
+      .map(r => ({ name: String(r.name || '').slice(0, NAME_MAX), score: r.score, lines: +r.lines || 0, combo: +r.combo || 0 }))
+      .sort((a, b) => b.score - a.score)
+      .slice(0, MAX_RECORDS);
+    return { top, bestCombo: +d.bestCombo || 0, maxLines: +d.maxLines || 0 };
+  } catch {
+    return { top: [], bestCombo: 0, maxLines: 0 };
+  }
+}
+
+function saveRecords() {
+  try { localStorage.setItem(RECORDS_KEY, JSON.stringify(records)); } catch { /* sin almacenamiento: se ignora */ }
+}
+
+// Posición (0-based) que ocuparía la puntuación en el top, o -1 si no entra.
+function rankOf(s) {
+  if (s <= 0) return -1;
+  let i = records.top.findIndex(r => s > r.score);
+  if (i < 0) i = records.top.length;
+  return i < MAX_RECORDS ? i : -1;
+}
+
+function fillTable(tbody, list, hi) {
+  tbody.replaceChildren();
+  if (!list.length) {
+    const td = tbody.insertRow().insertCell();
+    td.colSpan = 5;
+    td.textContent = 'Sin records';
+    return;
+  }
+  list.forEach((r, i) => {
+    const tr = tbody.insertRow();
+    if (i === hi) tr.className = 'hl';
+    [i + 1, r.name, r.score.toLocaleString(), r.lines, 'x' + r.combo].forEach(v => {
+      tr.insertCell().textContent = v; // textContent: el nombre es input del usuario
+    });
+  });
+}
+
+function refreshRecords() {
+  startStats.textContent = overStats.textContent =
+    `Mejor combo: ${records.bestCombo} · Líneas máx: ${records.maxLines}`;
+  fillTable(startBody, records.top, -1);
+  let list = records.top, hi = savedRank;
+  if (entryOpen) {
+    hi = rankOf(score);
+    list = records.top.slice();
+    list.splice(hi, 0, { name: '???', score, lines, combo: maxCombo });
+    list = list.slice(0, MAX_RECORDS);
+  }
+  fillTable(overBody, list, hi);
+  recordEntry.hidden = !entryOpen;
+}
+
+function submitRecord() {
+  const rank = rankOf(score);
+  if (!entryOpen || rank < 0) return;
+  const name = nameInput.value.trim().slice(0, NAME_MAX) || 'Anónimo';
+  records.top.splice(rank, 0, { name, score, lines, combo: maxCombo });
+  records.top = records.top.slice(0, MAX_RECORDS);
+  savedRank = rank;
+  entryOpen = false;
+  saveRecords();
+  refreshRecords();
+}
+
+function resetRecords() {
+  if (!confirm('¿Borrar todos los records?')) return;
+  records = { top: [], bestCombo: 0, maxLines: 0 };
+  savedRank = -1;
+  saveRecords();
+  refreshRecords();
+}
 
 function applyTheme(theme) {
   const isLight = theme === 'light';
@@ -139,6 +237,8 @@ function clearLines() {
       r++;
     }
   }
+  combo = cleared ? combo + 1 : 0;
+  maxCombo = Math.max(maxCombo, combo);
   if (cleared) {
     lines += cleared;
     if (cleared === 4) rewardPending = true;
@@ -267,7 +367,16 @@ function endGame() {
   draw();
   overlayTitle.textContent = 'GAME OVER';
   overlayScore.textContent = `Puntuación: ${score.toLocaleString()}`;
+  records.bestCombo = Math.max(records.bestCombo, maxCombo);
+  records.maxLines = Math.max(records.maxLines, lines);
+  entryOpen = rankOf(score) >= 0;
+  savedRank = -1;
+  nameInput.value = '';
+  saveRecords();
+  refreshRecords();
+  recordsBox.hidden = false;
   overlay.classList.remove('hidden');
+  if (entryOpen) nameInput.focus();
 }
 
 function togglePause() {
@@ -312,6 +421,11 @@ function init() {
   dropInterval = 1000;
   dropAccum = 0;
   rewardPending = false;
+  combo = 0;
+  maxCombo = 0;
+  entryOpen = false;
+  savedRank = -1;
+  recordsBox.hidden = true;
   lastTime = performance.now();
   next = randomPiece();
   spawn();
@@ -322,6 +436,7 @@ function init() {
 }
 
 document.addEventListener('keydown', e => {
+  if (!started || e.target instanceof HTMLInputElement) return;
   if (e.code === 'KeyP') { togglePause(); return; }
   if (paused || gameOver) return;
   switch (e.code) {
@@ -346,10 +461,20 @@ document.addEventListener('keydown', e => {
   updateHUD();
 });
 
-restartBtn.addEventListener('click', init);
+restartBtn.addEventListener('click', () => { submitRecord(); init(); }); // no perder un record sin guardar
 themeToggle.addEventListener('change', () => {
   applyTheme(themeToggle.checked ? 'light' : 'dark');
 });
 
+playBtn.addEventListener('click', () => {
+  started = true;
+  startScreen.classList.add('hidden');
+  init();
+});
+saveRecordBtn.addEventListener('click', submitRecord);
+nameInput.addEventListener('keydown', e => { if (e.key === 'Enter') submitRecord(); });
+document.querySelectorAll('.reset-records-btn').forEach(b => b.addEventListener('click', resetRecords));
+
+records = loadRecords();
+refreshRecords();
 initTheme();
-init();
